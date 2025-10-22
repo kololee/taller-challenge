@@ -23,13 +23,3 @@ class TaskUpdateModel(BaseModel):
     priority: Optional[int] = None
     completed: Optional[bool] = None
     due_date: Optional[str] = None
-
-class TaskWithProjectModel(BaseModel):
-    id: int
-    project_id: int
-    title: str
-    priority: int
-    completed: bool
-    due_date: Optional[str] = None
-    project_name: Optional[str] = None
-    project_description: Optional[str] = None
