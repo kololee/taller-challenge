@@ -7,7 +7,7 @@ services:
     # env_file:
       # - ./src/.env
     environment:
-      - DATABASE_URL=postgresql://postgres:admin@db_postgres:5432/taller_db
+      - DATABASE_URL=postgresql+asyncpg://postgres:admin@db:5432/taller_db
     ports:
       - "8000:8000"
     # expose:
