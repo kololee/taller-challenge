@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
-from sqlmodel import SQLModel
+from sqlalchemy.orm import sessionmaker
+from sqlmodel import SQLModel, Session
 from app.core.config import settings
 from app.models.projects import Project
 from app.models.tasks import Task
@@ -18,3 +19,10 @@ async def initialize_database() -> None:
     async with engine.begin() as conn:
         # Create all tables defined in SQLModel
         await conn.run_sync(SQLModel.metadata.create_all)
+
+
+def get_db():
+    """Dependency to get database session."""
+    # For now, we'll return None since we're using mocked data
+    # When implementing real database operations, this should return an actual session
+    return None
