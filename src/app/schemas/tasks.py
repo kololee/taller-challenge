@@ -1,25 +1,28 @@
 
 from typing import Optional
 from pydantic import BaseModel
+from datetime import datetime, date
+import uuid
 
 
 class TaskModel(BaseModel):
-    id: int
-    project_id: int
+    id: uuid.UUID
     title: str
     priority: int
     completed: bool
-    due_date: Optional[str] = None
+    project_id: Optional[uuid.UUID] = None
+    due_date: Optional[date] = None
 
 class TaskCreateModel(BaseModel):
     title: str
     priority: int = 1
     completed: bool = False
-    due_date: Optional[str] = None
+    project_id: Optional[uuid.UUID] = None
+    due_date: Optional[date] = None
 
 class TaskUpdateModel(BaseModel):
-    project_id: Optional[int] = None
     title: Optional[str] = None
     priority: Optional[int] = None
     completed: Optional[bool] = None
-    due_date: Optional[str] = None
+    project_id: Optional[uuid.UUID] = None
+    due_date: Optional[date] = None

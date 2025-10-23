@@ -1,7 +1,7 @@
 from sqlmodel import Field, SQLModel, Column, Relationship
 from sqlalchemy.dialects.postgresql import UUID, TIMESTAMP
-from sqlalchemy import ForeignKey
-from datetime import datetime
+from sqlalchemy import ForeignKey, Date
+from datetime import datetime, date
 import uuid
 from typing import Optional, TYPE_CHECKING
 
@@ -16,20 +16,13 @@ class Task(SQLModel, table=True):
         sa_column=Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     )
     title: str
-    description: str | None = None
-    is_completed: bool = Field(default=False)
-    created_at: datetime = Field(
-        sa_column=Column(
-            TIMESTAMP(timezone=True),
-            default=datetime.now,
-            nullable=False
-        )
-    )
+    priority: int = Field(default=1, description="Task priority (higher number = higher priority)")
+    completed: bool = Field(default=False)
     project_id: uuid.UUID | None = Field(
         sa_column=Column(UUID(as_uuid=True), ForeignKey("projects.id"))
     )
-    due_date: datetime | None = Field(
-        sa_column=Column(TIMESTAMP(timezone=True))
+    due_date: date | None = Field(
+        sa_column=Column(Date)
     )
     
     # Relationship to project

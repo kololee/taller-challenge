@@ -1,12 +1,19 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException
-from datetime import datetime
+from sqlalchemy.ext.asyncio.session import AsyncSession
+import uuid
 from app.schemas.projects import ProjectModel, ProjectCreateModel, ProjectUpdateModel
-from app.schemas.tasks import TaskCreateModel
-from app.test.mock_projects import projects
-from app.test.mock_tasks import tasks
+from app.schemas.tasks import TaskModel, TaskCreateModel
+from app.services.projects import ProjectService
+from app.core.db.database import get_db
 
 
 router = APIRouter(prefix="/projects", tags=["projects"])
+
+
+def get_project_service(db: AsyncSession = Depends(get_db)) -> ProjectService:
+    """Dependency to get ProjectService instance."""
+    return ProjectService(db)
 
 
 @router.post(
@@ -14,16 +21,11 @@ router = APIRouter(prefix="/projects", tags=["projects"])
         summary="Create a new project",
         status_code=201,
         response_model=ProjectModel)
-async def create_project(project: ProjectCreateModel):
-    new_id = max([p["id"] for p in projects], default=0) + 1
-    new_project = {
-        "id": new_id,
-        "name": project.name,
-        "description": project.description,
-        "created_at": datetime.now().isoformat() + "Z"
-    }
-    projects.append(new_project)
-    return new_project
+async def create_project(
+    project: ProjectCreateModel,
+    project_service: ProjectService = Depends(get_project_service)
+):
+    return await project_service.create_project(project)
 
 
 @router.get(
@@ -32,10 +34,10 @@ async def create_project(project: ProjectCreateModel):
         status_code=200,
         response_model=ProjectModel)
 async def get_project_details(
-    project_id: int,
-    # db: Session = Depends(get_db)
+    project_id: uuid.UUID,
+    project_service: ProjectService = Depends(get_project_service)
 ):
-    project = next((proj for proj in projects if proj["id"] == project_id), None)
+    project = await project_service.get_project_by_id(project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     return project
@@ -47,18 +49,14 @@ async def get_project_details(
         status_code=200,
         response_model=ProjectModel)
 async def update_project_info(
-    project_id: int,
+    project_id: uuid.UUID,
     updated_project: ProjectUpdateModel,
-    # db: Session = Depends(get_db)
+    project_service: ProjectService = Depends(get_project_service)
 ):
-    for index, proj in enumerate(projects):
-        if proj["id"] == project_id:
-            if updated_project.name is not None:
-                projects[index]["name"] = updated_project.name
-            if updated_project.description is not None:
-                projects[index]["description"] = updated_project.description
-            return projects[index]
-    raise HTTPException(status_code=404, detail="Project not found")
+    project = await project_service.update_project(project_id, updated_project)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return project
 
 
 @router.delete(
@@ -66,18 +64,12 @@ async def update_project_info(
         summary="Delete a project by ID",
         status_code=204)
 async def delete_project(
-    project_id: int,
-    # db: Session = Depends(get_db)
+    project_id: uuid.UUID,
+    project_service: ProjectService = Depends(get_project_service)
 ):
-    global projects, tasks
-    original_length = len(projects)
-    projects = [proj for proj in projects if proj["id"] != project_id]
-    
-    if len(projects) == original_length:
+    success = await project_service.delete_project(project_id)
+    if not success:
         raise HTTPException(status_code=404, detail="Project not found")
-    
-    tasks[:] = [task for task in tasks if task["project_id"] != project_id]
-    
     return None
 
 
@@ -85,35 +77,22 @@ async def delete_project(
         "/{project_id}/tasks/",
         summary="Create a new task under a specific project",
         status_code=201,
-        response_model=dict)
-async def create_task_for_project(project_id: int, task: TaskCreateModel):
-    project = next((proj for proj in projects if proj["id"] == project_id), None)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    new_task = {
-        "id": max([t["id"] for t in tasks], default=0) + 1,
-        "project_id": project_id,
-        "title": task.title,
-        "priority": task.priority,
-        "completed": task.completed,
-        "due_date": task.due_date
-    }
-    
-    tasks.append(new_task)
-    
-    return new_task
+        response_model=TaskModel)
+async def create_task_for_project(
+    project_id: uuid.UUID, 
+    task: TaskCreateModel,
+    project_service: ProjectService = Depends(get_project_service)
+):
+    return await project_service.create_task_for_project(project_id, task)
 
 
 @router.get(
         "/{project_id}/tasks/",
         summary="Get all tasks under a specific project",
         status_code=200,
-        response_model=list[dict])
-async def get_tasks_for_project(project_id: int):
-    project = next((proj for proj in projects if proj["id"] == project_id), None)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    project_tasks = [task for task in tasks if task["project_id"] == project_id]
-    return project_tasks
+        response_model=List[TaskModel])
+async def get_tasks_for_project(
+    project_id: uuid.UUID,
+    project_service: ProjectService = Depends(get_project_service)
+):
+    return await project_service.get_tasks_for_project(project_id)

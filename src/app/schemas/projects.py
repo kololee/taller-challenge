@@ -1,12 +1,14 @@
 from typing import Optional, List
 from pydantic import BaseModel
+from datetime import datetime
+import uuid
 
 
 class ProjectModel(BaseModel):
-    id: int
+    id: uuid.UUID
     name: str
-    description: str
-    created_at: str
+    description: Optional[str] = None
+    created_at: datetime
 
 class ProjectCreateModel(BaseModel):
     name: str
