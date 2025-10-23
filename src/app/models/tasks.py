@@ -1,25 +1,36 @@
+from sqlmodel import Field, SQLModel, Column, Relationship
+from sqlalchemy.dialects.postgresql import UUID, TIMESTAMP
+from sqlalchemy import ForeignKey
+from datetime import datetime
+import uuid
+from typing import Optional, TYPE_CHECKING
 
-from typing import Optional
-from pydantic import BaseModel
+if TYPE_CHECKING:
+    from .projects import Project
 
+class Task(SQLModel, table=True):
+    """Database model for a task."""
+    __tablename__ = "tasks"
 
-class TaskModel(BaseModel):
-    id: int
-    project_id: int
+    id: uuid.UUID = Field(
+        sa_column=Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    )
     title: str
-    priority: int
-    completed: bool
-    due_date: Optional[str] = None
-
-class TaskCreateModel(BaseModel):
-    title: str
-    priority: int = 1
-    completed: bool = False
-    due_date: Optional[str] = None
-
-class TaskUpdateModel(BaseModel):
-    project_id: Optional[int] = None
-    title: Optional[str] = None
-    priority: Optional[int] = None
-    completed: Optional[bool] = None
-    due_date: Optional[str] = None
+    description: str | None = None
+    is_completed: bool = Field(default=False)
+    created_at: datetime = Field(
+        sa_column=Column(
+            TIMESTAMP(timezone=True),
+            default=datetime.now,
+            nullable=False
+        )
+    )
+    project_id: uuid.UUID | None = Field(
+        sa_column=Column(UUID(as_uuid=True), ForeignKey("projects.id"))
+    )
+    due_date: datetime | None = Field(
+        sa_column=Column(TIMESTAMP(timezone=True))
+    )
+    
+    # Relationship to project
+    project: Optional["Project"] = Relationship(back_populates="tasks")
