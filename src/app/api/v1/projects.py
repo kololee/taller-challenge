@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime
-from app.models.projects import ProjectModel, ProjectCreateModel, ProjectUpdateModel
-from app.models.tasks import TaskCreateModel
+from app.schemas.projects import ProjectModel, ProjectCreateModel, ProjectUpdateModel
+from app.schemas.tasks import TaskCreateModel
 from app.test.mock_projects import projects
 from app.test.mock_tasks import tasks
 

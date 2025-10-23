@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.models.tasks import TaskModel, TaskUpdateModel
+from app.schemas.tasks import TaskModel, TaskUpdateModel
 from app.test.mock_tasks import tasks
 from app.test.mock_projects import projects
 
