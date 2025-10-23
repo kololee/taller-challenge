@@ -11,7 +11,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Taller Challenge API",
-    description="A clean API for managing projects and tasks",
+    description="A clean API for managing projects and tasks with JWT authentication.",
     version="1.0.0",
     lifespan=lifespan
 )

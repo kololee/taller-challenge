@@ -15,7 +15,11 @@ from app.core.config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-security = HTTPBearer()
+# Bearer token security scheme with description for Swagger UI
+security = HTTPBearer(
+    scheme_name="JWT Bearer Token",
+    description="Enter your JWT token (get it from /auth/login endpoint)"
+)
 
 
 class AuthService:
