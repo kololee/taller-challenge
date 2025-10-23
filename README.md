@@ -78,6 +78,21 @@ Async database libraries:
 
 Environment: Candidate can use any IDE or online environment supporting Python 3.8+ and PostgreSQL.
 
+## How to Run
+
+This project is containerized using **Docker Compose**.
+
+### Quick Start
+```bash
+docker-compose up --build
+```
+This will start:
+- **FastAPI** application (located in `src/app`)
+- **PostgreSQL** database instance (configured via `docker-compose.yml`)
+
+You can access the API once it’s running at:
+👉 http://localhost:8000/docs
+
 ## Authentication
 
 This API implements JWT (JSON Web Token) based authentication with Bearer tokens.
