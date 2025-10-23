@@ -6,6 +6,8 @@ from app.schemas.projects import ProjectModel, ProjectCreateModel, ProjectUpdate
 from app.schemas.tasks import TaskModel, TaskCreateModel
 from app.services.projects import ProjectService
 from app.core.db.database import get_db
+from app.models.auth import User
+from app.services.auth import get_current_user_dependency
 
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -23,6 +25,7 @@ def get_project_service(db: AsyncSession = Depends(get_db)) -> ProjectService:
         response_model=ProjectModel)
 async def create_project(
     project: ProjectCreateModel,
+    _current_user: User = Depends(get_current_user_dependency),
     project_service: ProjectService = Depends(get_project_service)
 ):
     return await project_service.create_project(project)
@@ -35,6 +38,7 @@ async def create_project(
         response_model=ProjectModel)
 async def get_project_details(
     project_id: uuid.UUID,
+    _current_user: User = Depends(get_current_user_dependency),
     project_service: ProjectService = Depends(get_project_service)
 ):
     project = await project_service.get_project_by_id(project_id)
@@ -51,6 +55,7 @@ async def get_project_details(
 async def update_project_info(
     project_id: uuid.UUID,
     updated_project: ProjectUpdateModel,
+    _current_user: User = Depends(get_current_user_dependency),
     project_service: ProjectService = Depends(get_project_service)
 ):
     project = await project_service.update_project(project_id, updated_project)
@@ -65,6 +70,7 @@ async def update_project_info(
         status_code=204)
 async def delete_project(
     project_id: uuid.UUID,
+    _current_user: User = Depends(get_current_user_dependency),
     project_service: ProjectService = Depends(get_project_service)
 ):
     success = await project_service.delete_project(project_id)
@@ -81,6 +87,7 @@ async def delete_project(
 async def create_task_for_project(
     project_id: uuid.UUID, 
     task: TaskCreateModel,
+    _current_user: User = Depends(get_current_user_dependency),
     project_service: ProjectService = Depends(get_project_service)
 ):
     return await project_service.create_task_for_project(project_id, task)
@@ -93,6 +100,7 @@ async def create_task_for_project(
         response_model=List[TaskModel])
 async def get_tasks_for_project(
     project_id: uuid.UUID,
+    _current_user: User = Depends(get_current_user_dependency),
     project_service: ProjectService = Depends(get_project_service)
 ):
     return await project_service.get_tasks_for_project(project_id)

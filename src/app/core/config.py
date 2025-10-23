@@ -26,6 +26,12 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = Field(default="development", description="Environment name")
     DEBUG: bool = Field(default=False, description="Debug mode")
     
+    # Authentication
+    SECRET_KEY: str = Field(default="secret-key-for-taller-challenge-schmitt", description="Secret key for JWT tokens")
+    ALGORITHM: str = Field(default="HS256", description="JWT algorithm")
+    JWT_ALGORITHM: str = Field(default="HS256", description="JWT algorithm")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30, description="JWT token expiration time in minutes")
+    
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",

@@ -5,6 +5,8 @@ import uuid
 from app.schemas.tasks import TaskModel, TaskCreateModel, TaskUpdateModel
 from app.services.tasks import TaskService
 from app.core.db.database import get_db
+from app.models.auth import User
+from app.services.auth import get_current_user_dependency
 
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
@@ -23,6 +25,7 @@ def get_task_service(db: AsyncSession = Depends(get_db)) -> TaskService:
 async def update_task(
     task_id: uuid.UUID,
     updated_task: TaskUpdateModel,
+    _current_user: User = Depends(get_current_user_dependency),
     task_service: TaskService = Depends(get_task_service)
 ):
     task = await task_service.update_task(task_id, updated_task)
@@ -37,6 +40,7 @@ async def update_task(
         status_code=204)
 async def delete_task(
     task_id: uuid.UUID,
+    _current_user: User = Depends(get_current_user_dependency),
     task_service: TaskService = Depends(get_task_service)
 ):
     success = await task_service.delete_task(task_id)
