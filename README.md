@@ -77,3 +77,26 @@ Async database libraries:
 - asyncpg (https://magicstack.github.io/asyncpg/current/)
 
 Environment: Candidate can use any IDE or online environment supporting Python 3.8+ and PostgreSQL.
+
+## Authentication
+
+This API implements JWT (JSON Web Token) based authentication with Bearer tokens.
+
+### Quick Start Authentication
+
+1. **Default Credentials**:
+   - Username: `admin`
+   - Password: `1234`
+
+2. **Get JWT Token**:
+   ```bash
+   curl -X POST "http://localhost:8000/api/v1/auth/login" \
+        -H "Content-Type: application/json" \
+        -d '{"username": "admin", "password": "1234"}'
+   ```
+
+3. **Use Token in Requests**:
+   ```bash
+   curl -X GET "http://localhost:8000/api/v1/auth/me" \
+        -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE"
+   ```
